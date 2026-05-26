@@ -8,10 +8,10 @@ export default function Login() {
   const { login, user, isLoading, error, clearError } = useAuthStore()
   const [form, setForm] = useState({ email: '', password: '', rememberMe: false })
 
-  useEffect(() => {
-    document.title = `${activeProject?.name} — DevBoard`
-    return () => { document.title = 'DevBoard' }
-  }, [activeProject])
+  // useEffect(() => {
+  //   document.title = `${activeProject?.name} — DevBoard`
+  //   return () => { document.title = 'DevBoard' }
+  // }, [activeProject])
 
   useEffect(() => {
     if (user) navigate('/dashboard')

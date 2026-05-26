@@ -9,10 +9,10 @@ export default function CreateWorkspace() {
   const [form, setForm] = useState({ name: '', description: '' })
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    document.title = `${activeProject?.name} — DevBoard`
-    return () => { document.title = 'DevBoard' }
-  }, [activeProject])
+//   useEffect(() => {
+//     document.title = `${activeProject?.name} — DevBoard`
+//     return () => { document.title = 'DevBoard' }
+//   }, [activeProject])
 
   const handleSubmit = async (e) => {
     e.preventDefault()

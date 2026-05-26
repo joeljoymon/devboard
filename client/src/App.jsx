@@ -9,6 +9,7 @@ import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import ProjectPage from './pages/ProjectPage'
 import CreateWorkspace from './pages/CreateWorkspace'
+import NotFound from './pages/NotFound'
 
 export default function App() {
   const fetchMe = useAuthStore(state => state.fetchMe)
@@ -34,6 +35,7 @@ export default function App() {
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="projects/:projectId" element={<ProjectPage />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -18,10 +18,10 @@ export default function Dashboard() {
   const [inviteEmail, setInviteEmail] = useState('')
   const { workspace, inviteMember } = useWorkspaceStore()
 
-  useEffect(() => {
-    document.title = `${activeProject?.name} — DevBoard`
-    return () => { document.title = 'DevBoard' }
-  }, [activeProject])
+  // useEffect(() => {
+  //   document.title = `${activeProject?.name} — DevBoard`
+  //   return () => { document.title = 'DevBoard' }
+  // }, [activeProject])
 
   const handleInvite = async (e) => {
     e.preventDefault()

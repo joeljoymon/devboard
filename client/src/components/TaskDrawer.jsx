@@ -17,6 +17,11 @@ export default function TaskDrawer({ task, onClose }) {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
+    document.title = `${activeProject?.name} — DevBoard`
+    return () => { document.title = 'DevBoard' }
+  }, [activeProject])
+
+  useEffect(() => {
     if (task) setForm({ ...task })
   }, [task])
 

@@ -8,10 +8,10 @@ export default function Register() {
   const { register, user, isLoading, error, clearError } = useAuthStore()
   const [form, setForm] = useState({ name: '', email: '', password: '' })
 
-  useEffect(() => {
-    document.title = `${activeProject?.name} — DevBoard`
-    return () => { document.title = 'DevBoard' }
-  }, [activeProject])
+  // useEffect(() => {
+  //   document.title = `${activeProject?.name} — DevBoard`
+  //   return () => { document.title = 'DevBoard' }
+  // }, [activeProject])
 
   // If already logged in, go to dashboard
   useEffect(() => {
