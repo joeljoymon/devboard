@@ -64,8 +64,10 @@ const updateTask = async (req, res) => {
       { new: true }
     ).populate('assignee', 'name email avatar')
 
-    await logActivity(req.body.project, req.user._id, 'updated', task.title)
-
+    if(task){
+      await logActivity(req.body.project, req.user._id, 'updated', task.title)
+    }
+    
     res.json(task)
   } catch (error) {
     res.status(500).json({ message: error.message })

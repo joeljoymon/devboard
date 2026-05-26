@@ -30,6 +30,11 @@ export default function AnalyticsPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    document.title = `${activeProject?.name} — DevBoard`
+    return () => { document.title = 'DevBoard' }
+  }, [activeProject])
+
+  useEffect(() => {
     if (!projectId) return
     setIsLoading(true)
     fetchAnalytics(projectId, activeSprint?._id)

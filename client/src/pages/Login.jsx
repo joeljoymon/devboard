@@ -9,6 +9,11 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '', rememberMe: false })
 
   useEffect(() => {
+    document.title = `${activeProject?.name} — DevBoard`
+    return () => { document.title = 'DevBoard' }
+  }, [activeProject])
+
+  useEffect(() => {
     if (user) navigate('/dashboard')
   }, [user])
 

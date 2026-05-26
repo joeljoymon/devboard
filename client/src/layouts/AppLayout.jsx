@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom'
 
 export default function AppLayout() {
   const { user } = useAuthStore()
-  const { fetchWorkspace, workspace } = useWorkspaceStore()
+  const { fetchWorkspace, workspace, isLoading } = useWorkspaceStore()
   const { fetchProjects } = useProjectStore()
 
   // When layout mounts, load workspace + projects
@@ -25,6 +25,15 @@ export default function AppLayout() {
   useEffect(() => {
     if (workspace) fetchProjects(workspace._id)
   }, [workspace])
+
+  if (isLoading) return (
+  <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+    <div className="text-center space-y-4">
+      <div className="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto" />
+      <p className="text-gray-500 text-sm">Loading workspace...</p>
+    </div>
+  </div>
+)
 
   return (
     <div className="flex h-screen bg-gray-900 text-white">
