@@ -1,0 +1,27 @@
+{
+  "name": "devboard",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "server": "npm run dev --prefix server",
+    "client": "npm run dev --prefix client"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joeljoymon/devboard.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/joeljoymon/devboard/issues"
+  },
+  "homepage": "https://github.com/joeljoymon/devboard#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

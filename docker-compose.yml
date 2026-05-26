@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # MongoDB
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Express backend
+  server:
+    build: ./server
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/devboard
+      - PORT=5000
+      - JWT_SECRET=${JWT_SECRET}
+      - CLIENT_URL=http://localhost:5173
+      - NODE_ENV=development
+    depends_on:
+      mongo:
+        condition: service_healthy
+    volumes:
+      - ./server:/app          # live reload in dev
+      - /app/node_modules      # don't override container's node_modules
+
+volumes:
+  mongo_data:
