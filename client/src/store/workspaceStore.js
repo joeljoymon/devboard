@@ -6,14 +6,17 @@ const useWorkspaceStore = create((set) => ({
   isLoading: false,
 
   fetchWorkspace: async () => {
-    set({ isLoading: true })
-    try {
-      const { data } = await axios.get('/api/workspaces/me')
-      set({ workspace: data, isLoading: false })
-    } catch {
-      set({ workspace: null, isLoading: false })
-    }
-  },
+  set({ isLoading: true })
+  try {
+    const { data } = await axios.get('/api/workspaces/me')
+    set({ workspace: data, isLoading: false })
+  } catch {
+    // 404 means no workspace — not a crash, just no workspace yet
+    set({ workspace: null, isLoading: false })
+  }
+  // ✅ always resolves — never rejects
+  // AppLayout's .then() will always fire
+},
 
   createWorkspace: async (name, description) => {
     const { data } = await axios.post('/api/workspaces', { name, description })

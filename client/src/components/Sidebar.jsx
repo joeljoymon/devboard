@@ -6,7 +6,7 @@ import Avatar from './Avatar'
 
 export default function Sidebar() {
   const { user, logout } = useAuthStore()
-  const { workspace } = useWorkspaceStore()
+  const { workspace, isLoading  } = useWorkspaceStore()
   const { projects } = useProjectStore()
   const navigate = useNavigate()
 
@@ -20,7 +20,9 @@ export default function Sidebar() {
       {/* Workspace name */}
       <div className="px-4 py-5 border-b border-gray-800">
         <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">Workspace</p>
-        <p className="text-white font-semibold truncate">{workspace?.name || 'Loading...'}</p>
+        <p className="text-white font-semibold truncate">
+        {workspace?.name || (isLoading ? 'Loading...' : 'No workspace')}
+        </p>
       </div>
 
       {/* Projects list */}

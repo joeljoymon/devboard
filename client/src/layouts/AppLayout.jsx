@@ -13,13 +13,20 @@ export default function AppLayout() {
 
   // When layout mounts, load workspace + projects
   useEffect(() => {
-  if (user) {
-    fetchWorkspace().then(() => {
-      if (!useWorkspaceStore.getState().workspace) {
-        navigate('/create-workspace')
-      }
-    })
+  if (!user) return
+
+  const checkWorkspace = async () => {
+    await fetchWorkspace()
+    // Read state directly after await — always runs regardless of success/fail
+    const ws = useWorkspaceStore.getState().workspace
+    const loading = useWorkspaceStore.getState().isLoading
+
+    if (!loading && !ws) {
+      navigate('/create-workspace')
+    }
   }
+
+  checkWorkspace()
 }, [user])
 
   useEffect(() => {
