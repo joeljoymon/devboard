@@ -2,17 +2,33 @@ const Project = require('../models/Project')
 const User = require('../models/User')
 const Task = require('../models/Task')
 const ActivityLog = require('../models/ActivityLog')
+const Workspace = require('../models/Workspace')
 
 // POST /api/projects
 const createProject = async (req, res) => {
   try {
     const { name, description, workspaceId } = req.body
 
+    // Check workspace role — only owner and admin can create projects
+    const workspace = await Workspace.findById(workspaceId)
+    if (!workspace) return res.status(404).json({ message: 'Workspace not found' })
+
+    const isOwner = workspace.owner.toString() === req.user._id.toString()
+    const member  = workspace.members.find(
+      m => m.user.toString() === req.user._id.toString()
+    )
+
+    if (!isOwner && member?.role !== 'admin') {
+      return res.status(403).json({
+        message: 'Only workspace admins can create projects'
+      })
+    }
+
     const project = await Project.create({
       name,
       description,
       workspace: workspaceId,
-      members: [{ user: req.user._id, role: 'manager' }]  // creator is manager
+      members: [{ user: req.user._id, role: 'manager' }]
     })
 
     res.status(201).json(project)
@@ -69,19 +85,38 @@ const inviteMember = async (req, res) => {
     const { email, role = 'member' } = req.body
 
     const project = await Project.findById(req.params.projectId)
+      .populate('workspace')
+
     const userToInvite = await User.findOne({ email })
+    if (!userToInvite) {
+      return res.status(404).json({ message: 'No user with that email' })
+    }
 
-    if (!userToInvite) return res.status(404).json({ message: 'No user with that email' })
-
-    const alreadyMember = project.members.find(
+    // Check already in project
+    const alreadyInProject = project.members.find(
       m => m.user.toString() === userToInvite._id.toString()
     )
-    if (alreadyMember) return res.status(400).json({ message: 'User already in project' })
+    if (alreadyInProject) {
+      return res.status(400).json({ message: 'User already in project' })
+    }
 
+    // ✅ Auto-add to workspace as 'member' if not already there
+    const workspace = await Workspace.findById(project.workspace._id || project.workspace)
+    const alreadyInWorkspace = workspace.members.find(
+      m => m.user.toString() === userToInvite._id.toString()
+    )
+    if (!alreadyInWorkspace) {
+      workspace.members.push({ user: userToInvite._id, role: 'member' })
+      await workspace.save()
+    }
+
+    // Add to project with specified role
     project.members.push({ user: userToInvite._id, role })
     await project.save()
 
-    res.json({ message: `${userToInvite.name} added to project as ${role}` })
+    res.json({
+      message: `${userToInvite.name} added to project as ${role}`
+    })
   } catch (error) {
     res.status(500).json({ message: error.message })
   }

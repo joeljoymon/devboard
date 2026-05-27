@@ -17,14 +17,22 @@ export default function Dashboard() {
   const [inviteEmail, setInviteEmail] = useState("");
   const { workspace, inviteMember } = useWorkspaceStore();
 
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteForm, setInviteForm] = useState({ email: "", role: "member" });
+  const [inviting, setInviting] = useState(false);
+
   const handleInvite = async (e) => {
     e.preventDefault();
+    setInviting(true);
     try {
-      await inviteMember(workspace._id, inviteEmail, "member");
-      toast.success(`${inviteEmail} invited to workspace!`);
-      setInviteEmail("");
-    } catch {
-      toast.error("Invite failed — make sure they have an account");
+      await inviteMember(workspace._id, inviteForm.email, inviteForm.role);
+      toast.success(`${inviteForm.email} invited as ${inviteForm.role}`);
+      setShowInviteModal(false);
+      setInviteForm({ email: "", role: "member" });
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Invite failed");
+    } finally {
+      setInviting(false);
     }
   };
 
@@ -156,28 +164,90 @@ export default function Dashboard() {
             </div>
           </div>
         )}
-        {/* ✅ ADD HERE — after the ternary closes, still inside the scrollable div */}
-        <div className="mt-8 max-w-sm">
-          <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">
-            Invite to workspace
-          </p>
-          <form onSubmit={handleInvite} className="flex gap-2">
-            <input
-              type="email"
-              required
-              value={inviteEmail}
-              onChange={(e) => setInviteEmail(e.target.value)}
-              placeholder="teammate@test.com"
-              className="flex-1 bg-gray-800 border border-gray-700 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-violet-500 transition"
-            />
-            <button
-              type="submit"
-              className="bg-violet-600 hover:bg-violet-500 text-white text-sm px-4 py-2 rounded-lg transition"
-            >
-              Invite
-            </button>
-          </form>
+        {/* Replace old invite form with this */}
+        <div className="mt-8">
+          <button
+            onClick={() => setShowInviteModal(true)}
+            className="flex items-center gap-2 text-sm text-gray-500 hover:text-violet-400 border border-gray-700 hover:border-violet-500 px-4 py-2 rounded-lg transition"
+          >
+            <span>＋</span> Invite to Workspace
+          </button>
         </div>
+
+        {/* Workspace Invite Modal */}
+        <Modal
+          isOpen={showInviteModal}
+          onClose={() => setShowInviteModal(false)}
+          title="Invite to Workspace"
+        >
+          <form onSubmit={handleInvite} className="space-y-4">
+            <div>
+              <label className="block text-sm text-gray-400 mb-1">
+                Email address
+              </label>
+              <input
+                type="email"
+                required
+                value={inviteForm.email}
+                onChange={(e) =>
+                  setInviteForm({ ...inviteForm, email: e.target.value })
+                }
+                className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-violet-500 transition"
+                placeholder="colleague@company.com"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm text-gray-400 mb-1">Role</label>
+              <select
+                value={inviteForm.role}
+                onChange={(e) =>
+                  setInviteForm({ ...inviteForm, role: e.target.value })
+                }
+                className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-violet-500 transition"
+              >
+                <option value="member">
+                  Member — can be added to projects
+                </option>
+                <option value="admin">
+                  Admin — can create projects and invite others
+                </option>
+              </select>
+            </div>
+
+            {/* Role explanation */}
+            <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3">
+              {inviteForm.role === "admin" ? (
+                <p className="text-xs text-amber-400">
+                  ⚠️ Admins can create projects, invite workspace members, and
+                  manage the organisation.
+                </p>
+              ) : (
+                <p className="text-xs text-gray-500">
+                  Members can be added to specific projects by a Project
+                  Manager. They cannot create projects or invite others.
+                </p>
+              )}
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowInviteModal(false)}
+                className="flex-1 bg-gray-800 hover:bg-gray-700 text-white rounded-lg py-2.5 transition text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={inviting}
+                className="flex-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white rounded-lg py-2.5 transition text-sm"
+              >
+                {inviting ? "Inviting..." : "Send Invite"}
+              </button>
+            </div>
+          </form>
+        </Modal>
       </div>
 
       {/* Create Project Modal */}
