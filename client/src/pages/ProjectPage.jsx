@@ -295,11 +295,6 @@ export default function ProjectPage() {
           onClose={() => setSelectedTask(null)}
         />
       )}
-      {colTasks.length === 0 && !snapshot.isDraggingOver && (
-     <div className="flex-1 flex items-center justify-center py-8">
-        <p className="text-xs text-gray-700">Drop tasks here</p>
-     </div>
-      )}
     </div>
   )
 }

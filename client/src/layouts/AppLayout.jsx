@@ -1,15 +1,15 @@
 import { useEffect } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import useWorkspaceStore from '../store/workspaceStore'
 import useProjectStore from '../store/projectStore'
 import useAuthStore from '../store/authStore'
-import { useNavigate } from 'react-router-dom'
 
 export default function AppLayout() {
   const { user } = useAuthStore()
   const { fetchWorkspace, workspace, isLoading } = useWorkspaceStore()
   const { fetchProjects } = useProjectStore()
+  const navigate = useNavigate()
 
   // When layout mounts, load workspace + projects
   useEffect(() => {
