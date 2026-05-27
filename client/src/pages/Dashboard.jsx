@@ -1,59 +1,57 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import toast from 'react-hot-toast'
-import useWorkspaceStore from '../store/workspaceStore'
-import useProjectStore from '../store/projectStore'
-import TopBar from '../components/TopBar'
-import Modal from '../components/Modal'
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import useWorkspaceStore from "../store/workspaceStore";
+import useProjectStore from "../store/projectStore";
+import TopBar from "../components/TopBar";
+import Modal from "../components/Modal";
 
 export default function Dashboard() {
-
-  const { projects, createProject, isLoading } = useProjectStore()
-  const navigate = useNavigate()
-  const [showModal, setShowModal] = useState(false)
-  const [form, setForm] = useState({ name: '', description: '' })
-  const [creating, setCreating] = useState(false)
+  const { projects, createProject, isLoading } = useProjectStore();
+  const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
+  const [form, setForm] = useState({ name: "", description: "" });
+  const [creating, setCreating] = useState(false);
 
   // Temporary invite tester — remove after Phase 9 polish
-  const [inviteEmail, setInviteEmail] = useState('')
-  const { workspace, inviteMember } = useWorkspaceStore()
-
-  // useEffect(() => {
-  //   document.title = `${activeProject?.name} — DevBoard`
-  //   return () => { document.title = 'DevBoard' }
-  // }, [activeProject])
+  const [inviteEmail, setInviteEmail] = useState("");
+  const { workspace, inviteMember } = useWorkspaceStore();
 
   const handleInvite = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
-      await inviteMember(workspace._id, inviteEmail, 'member')
-      toast.success(`${inviteEmail} invited to workspace!`)
-      setInviteEmail('')
+      await inviteMember(workspace._id, inviteEmail, "member");
+      toast.success(`${inviteEmail} invited to workspace!`);
+      setInviteEmail("");
     } catch {
-      toast.error('Invite failed — make sure they have an account')
+      toast.error("Invite failed — make sure they have an account");
     }
-  }
+  };
 
   const handleCreate = async (e) => {
-    e.preventDefault()
-    setCreating(true)
+    e.preventDefault();
+    setCreating(true);
     try {
-      const project = await createProject(form.name, form.description, workspace._id)
-      toast.success('Project created!')
-      setShowModal(false)
-      setForm({ name: '', description: '' })
-      navigate(`/projects/${project._id}`)
+      const project = await createProject(
+        form.name,
+        form.description,
+        workspace._id,
+      );
+      toast.success("Project created!");
+      setShowModal(false);
+      setForm({ name: "", description: "" });
+      navigate(`/projects/${project._id}`);
     } catch {
-      toast.error('Failed to create project')
+      toast.error("Failed to create project");
     } finally {
-      setCreating(false)
+      setCreating(false);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <TopBar
-        title={workspace?.name || 'Dashboard'}
+        title={workspace?.name || "Dashboard"}
         subtitle="All projects"
         actions={
           <button
@@ -71,22 +69,62 @@ export default function Dashboard() {
             <div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : projects.length === 0 ? (
-          /* Empty state */
           <div className="flex flex-col items-center justify-center mt-24 text-center">
-            <p className="text-5xl mb-4">📁</p>
-            <h2 className="text-xl font-semibold text-white mb-2">No projects yet</h2>
-            <p className="text-gray-500 mb-6">Create your first project to start tracking work</p>
-            <button
-              onClick={() => setShowModal(true)}
-              className="bg-violet-600 hover:bg-violet-500 text-white px-6 py-2.5 rounded-lg transition"
-            >
-              Create Project
-            </button>
+            {!workspace ? (
+              // ── No workspace at all ──────────────────────────
+              // This person is brand new — give them two paths
+              <>
+                <p className="text-5xl mb-4">🏢</p>
+                <h2 className="text-xl font-semibold text-white mb-2">
+                  Welcome to DevBoard
+                </h2>
+                <p className="text-gray-500 mb-8 max-w-sm">
+                  Are you starting a new team, or waiting for someone to invite
+                  you?
+                </p>
+                <div className="flex flex-col gap-3 w-full max-w-xs">
+                  <button
+                    onClick={() => navigate("/create-workspace")}
+                    className="bg-violet-600 hover:bg-violet-500 text-white px-6 py-3 rounded-lg transition font-medium"
+                  >
+                    🏢 Create a Workspace
+                  </button>
+                  <p className="text-xs text-gray-600 text-center">— or —</p>
+                  <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3">
+                    <p className="text-sm text-gray-400 text-center">
+                      Waiting for an invite?
+                    </p>
+                    <p className="text-xs text-gray-600 text-center mt-1">
+                      Ask your project manager to invite you to their workspace.
+                      You'll see your projects here once added.
+                    </p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              // ── Has workspace but no projects ────────────────
+              // Workspace admin/member who hasn't created a project yet
+              <>
+                <p className="text-5xl mb-4">📁</p>
+                <h2 className="text-xl font-semibold text-white mb-2">
+                  No projects yet
+                </h2>
+                <p className="text-gray-500 mb-6">
+                  Create your first project to start tracking work
+                </p>
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="bg-violet-600 hover:bg-violet-500 text-white px-6 py-2.5 rounded-lg transition"
+                >
+                  Create Project
+                </button>
+              </>
+            )}
           </div>
         ) : (
           /* Project cards grid */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {projects.map(project => (
+            {projects.map((project) => (
               <div
                 key={project._id}
                 onClick={() => navigate(`/projects/${project._id}`)}
@@ -95,11 +133,16 @@ export default function Dashboard() {
                 <div className="flex items-start justify-between mb-3">
                   <span className="text-2xl">📁</span>
                   <span className="text-xs text-gray-600 group-hover:text-gray-400 transition">
-                    {project.members.length} member{project.members.length !== 1 ? 's' : ''}
+                    {project.members.length} member
+                    {project.members.length !== 1 ? "s" : ""}
                   </span>
                 </div>
-                <h3 className="text-white font-semibold mb-1">{project.name}</h3>
-                <p className="text-gray-500 text-sm line-clamp-2">{project.description || 'No description'}</p>
+                <h3 className="text-white font-semibold mb-1">
+                  {project.name}
+                </h3>
+                <p className="text-gray-500 text-sm line-clamp-2">
+                  {project.description || "No description"}
+                </p>
               </div>
             ))}
 
@@ -115,17 +158,22 @@ export default function Dashboard() {
         )}
         {/* ✅ ADD HERE — after the ternary closes, still inside the scrollable div */}
         <div className="mt-8 max-w-sm">
-          <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">Invite to workspace</p>
+          <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">
+            Invite to workspace
+          </p>
           <form onSubmit={handleInvite} className="flex gap-2">
             <input
-              type="email" required
+              type="email"
+              required
               value={inviteEmail}
-              onChange={e => setInviteEmail(e.target.value)}
+              onChange={(e) => setInviteEmail(e.target.value)}
               placeholder="teammate@test.com"
               className="flex-1 bg-gray-800 border border-gray-700 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-violet-500 transition"
             />
-            <button type="submit"
-              className="bg-violet-600 hover:bg-violet-500 text-white text-sm px-4 py-2 rounded-lg transition">
+            <button
+              type="submit"
+              className="bg-violet-600 hover:bg-violet-500 text-white text-sm px-4 py-2 rounded-lg transition"
+            >
               Invite
             </button>
           </form>
@@ -133,40 +181,57 @@ export default function Dashboard() {
       </div>
 
       {/* Create Project Modal */}
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Create Project">
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        title="Create Project"
+      >
         <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Project name</label>
+            <label className="block text-sm text-gray-400 mb-1">
+              Project name
+            </label>
             <input
-              type="text" required
+              type="text"
+              required
               value={form.name}
-              onChange={e => setForm({ ...form, name: e.target.value })}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
               className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-violet-500 transition"
               placeholder="Mobile App"
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Description</label>
+            <label className="block text-sm text-gray-400 mb-1">
+              Description
+            </label>
             <textarea
               value={form.description}
-              onChange={e => setForm({ ...form, description: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
               className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-violet-500 transition resize-none"
               rows={3}
               placeholder="What is this project about?"
             />
           </div>
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={() => setShowModal(false)}
-              className="flex-1 bg-gray-800 hover:bg-gray-700 text-white rounded-lg py-2.5 transition text-sm">
+            <button
+              type="button"
+              onClick={() => setShowModal(false)}
+              className="flex-1 bg-gray-800 hover:bg-gray-700 text-white rounded-lg py-2.5 transition text-sm"
+            >
               Cancel
             </button>
-            <button type="submit" disabled={creating}
-              className="flex-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white rounded-lg py-2.5 transition text-sm">
-              {creating ? 'Creating...' : 'Create'}
+            <button
+              type="submit"
+              disabled={creating}
+              className="flex-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white rounded-lg py-2.5 transition text-sm"
+            >
+              {creating ? "Creating..." : "Create"}
             </button>
           </div>
         </form>
       </Modal>
     </div>
-  )
+  );
 }

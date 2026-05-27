@@ -26,7 +26,9 @@ export default function App() {
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/create-workspace" element={<CreateWorkspace/>} />
+        <Route path="/create-workspace" element={
+          <ProtectedRoute><CreateWorkspace /></ProtectedRoute>
+        } />
 
         {/* Protected routes — all share AppLayout */}
         <Route path="/" element={
